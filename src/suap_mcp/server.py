@@ -32,7 +32,7 @@ projeto (cronograma, equipe, resultados) e guie o estudante secao por secao.
 IMPORTANTE: Todas as ferramentas sao de leitura. Nenhuma altera dados no SUAP.
 """
 
-servidor = MCPServer(name="suap-mcp", title="SUAP MCP", instructions=INSTRUCOES, version="0.1.0")
+servidor = MCPServer(name="suap-mcp", title="Sabichao - seu SUAP na ponta da lingua", instructions=INSTRUCOES, version="0.1.0")
 
 LEITURA = ToolAnnotations(readOnlyHint=True, openWorldHint=False)
 LEITURA_SUAP = ToolAnnotations(readOnlyHint=True, openWorldHint=True)

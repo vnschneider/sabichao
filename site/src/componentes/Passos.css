@@ -1,0 +1,67 @@
+.passos {
+  border-top: 1px solid var(--borda);
+}
+
+.passos-trilha {
+  list-style: none;
+  padding: 0;
+  margin: 48px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px;
+  position: relative;
+}
+
+.passos-trilha::before {
+  content: "";
+  position: absolute;
+  top: 26px;
+  left: 26px;
+  right: 26px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ambar), color-mix(in srgb, var(--ambar) 15%, transparent));
+}
+
+.passos-trilha li {
+  position: relative;
+}
+
+.passos-icone {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--raio);
+  background: var(--fundo);
+  border: 2px solid var(--ambar);
+  color: var(--ambar);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.passos-trilha h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.passos-trilha p {
+  margin: 0;
+  color: var(--apagado);
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .passos-trilha {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 40px;
+  }
+  .passos-trilha::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .passos-trilha {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,22 @@
+.rodape {
+  border-top: 1px solid var(--borda);
+  padding-block: 36px 48px;
+  color: var(--apagado);
+  font-size: 14px;
+}
+
+.rodape-linha {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+
+.rodape p {
+  margin: 0;
+}
+
+.rodape-links {
+  display: flex;
+  gap: 20px;
+}

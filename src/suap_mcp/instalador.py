@@ -99,6 +99,6 @@ def diagnostico() -> list[dict]:
         verificacoes.append({
             "item": "Apps de IA",
             "ok": False,
-            "detalhe": "nenhum app compativel encontrado (Claude Desktop, Claude Code, Codex, Gemini CLI)",
+            "detalhe": "nenhum app compativel encontrado (Claude Desktop, Claude Code, Codex, Gemini CLI, OpenCode)",
         })
     return verificacoes

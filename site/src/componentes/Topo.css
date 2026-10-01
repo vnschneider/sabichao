@@ -1,0 +1,66 @@
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--fundo) 86%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--borda) 60%, transparent);
+}
+
+.topo-linha {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--texto-forte);
+  font-weight: 800;
+  font-size: 19px;
+  text-decoration: none;
+}
+
+.marca img {
+  image-rendering: pixelated;
+}
+
+.topo nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.topo nav a {
+  color: var(--apagado);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.topo nav a:hover {
+  color: var(--texto-forte);
+}
+
+.topo-github {
+  display: inline-flex;
+}
+
+@media (max-width: 767px) {
+  .topo nav a:not(.topo-github) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .topo {
+    background: var(--fundo);
+    backdrop-filter: none;
+  }
+}

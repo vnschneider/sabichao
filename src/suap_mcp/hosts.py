@@ -62,9 +62,12 @@ def _backup(arquivo: Path) -> None:
 
 
 def _ler_json(arquivo: Path) -> dict:
-    if not arquivo.exists() or not arquivo.read_text(encoding="utf-8").strip():
+    if not arquivo.exists():
         return {}
-    return json.loads(arquivo.read_text(encoding="utf-8"))
+    texto = arquivo.read_text(encoding="utf-8-sig").strip()
+    if not texto:
+        return {}
+    return json.loads(texto)
 
 
 def _gravar_json(arquivo: Path, dados: dict) -> None:
@@ -158,6 +161,37 @@ def permitir_no_claude_code(arquivo: Path, remover: bool = False) -> None:
     _gravar_json(arquivo, dados)
 
 
+class HostOpenCode(Host):
+    """OpenCode: ~/.config/opencode/opencode.json com mcp.servers."""
+
+    def __init__(self) -> None:
+        super().__init__("opencode", "OpenCode")
+        self.arquivo = _home() / ".config" / "opencode" / "opencode.json"
+
+    def instalado(self) -> bool:
+        return shutil.which("opencode") is not None or self.arquivo.parent.exists()
+
+    def configurado(self) -> bool:
+        return NOME_SERVIDOR in _ler_json(self.arquivo).get("mcp", {}).get("servers", {})
+
+    def configurar(self) -> str:
+        _backup(self.arquivo)
+        dados = _ler_json(self.arquivo)
+        dados.setdefault("mcp", {}).setdefault("servers", {})[NOME_SERVIDOR] = {
+            "type": "local",
+            "command": comando_mcp(),
+        }
+        _gravar_json(self.arquivo, dados)
+        return f"adicionado em {self.arquivo}"
+
+    def remover(self) -> str:
+        dados = _ler_json(self.arquivo)
+        if dados.get("mcp", {}).get("servers", {}).pop(NOME_SERVIDOR, None) is None:
+            return "nao estava configurado"
+        _gravar_json(self.arquivo, dados)
+        return f"removido de {self.arquivo}"
+
+
 def todos() -> list[Host]:
     home = _home()
     return [
@@ -175,4 +209,5 @@ def todos() -> list[Host]:
         HostJson("gemini", "Gemini CLI",
                  home / ".gemini" / "settings.json", home / ".gemini", "gemini",
                  extras={"timeout": 600000, "trust": True}),
+        HostOpenCode(),
     ]
