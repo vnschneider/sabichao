@@ -1,0 +1,38 @@
+[project]
+name = "suap-mcp"
+version = "0.1.0"
+description = "Servidor MCP para estudantes consultarem o SUAP (ensino, pesquisa, extensao e projetos)."
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+keywords = ["suap", "ifma", "mcp", "estudante", "ensino", "pesquisa", "extensao"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Operating System :: OS Independent",
+]
+authors = [
+    { name = "Vinicius Schneider", email = "contatovschneider@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "keyring>=25.7.0",
+    "lxml>=6.1.3",
+    "mcp[cli]>=2.2.0",
+    "playwright>=1.63.0",
+    "pydantic>=2.13.5",
+]
+
+[project.scripts]
+suap-mcp = "suap_mcp:main"
+
+[build-system]
+requires = ["uv_build>=0.11.1,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "respx>=0.23.1",
+]
