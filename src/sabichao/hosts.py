@@ -16,11 +16,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-NOME_SERVIDOR = "suap-mcp"
+NOME_SERVIDOR = "sabichao"
 
 
 def comando_mcp() -> list[str]:
-    return [sys.executable, "-m", "suap_mcp", "mcp"]
+    return [sys.executable, "-m", "sabichao", "mcp"]
 
 
 def _home() -> Path:
@@ -56,7 +56,7 @@ class Host:
 
 
 def _backup(arquivo: Path) -> None:
-    copia = arquivo.with_name(arquivo.name + ".suap-mcp-bak")
+    copia = arquivo.with_name(arquivo.name + ".sabichao-bak")
     if arquivo.exists() and not copia.exists():
         shutil.copy2(arquivo, copia)
 

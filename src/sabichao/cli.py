@@ -1,4 +1,4 @@
-"""CLI `suap-mcp` - instalar, login, diagnostico e servidor MCP.
+"""CLI `sabichao` - instalar, login, diagnostico e servidor MCP.
 
 Sabichao: seu SUAP na ponta da lingua.
 """
@@ -46,7 +46,7 @@ def _pergunta(texto: str, padrao: bool, automatico: bool) -> bool:
 
 def _mascote_banner() -> None:
     try:
-        from suap_mcp.mascote import render
+        from sabichao.mascote import render
         print(render("normal", "pequeno"))
     except Exception:
         pass
@@ -55,7 +55,7 @@ def _mascote_banner() -> None:
 def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = None,
                  com_login: bool = True) -> int:
     """Prepara tudo: navegador, pasta de dados, conexao com apps de IA, login e diagnostico."""
-    from suap_mcp import auth, config, instalador
+    from sabichao import auth, config, instalador
 
     print()
     _mascote_banner()
@@ -72,7 +72,7 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
         r = instalador.instalar_chromium()
         _linha(r.ok, r.mensagem)
     else:
-        _linha(None, "sem navegador — instale o Google Chrome e rode `suap-mcp instalar` de novo")
+        _linha(None, "sem navegador — instale o Google Chrome e rode `sabichao instalar` de novo")
 
     _passo(2, total, "Pasta de dados")
     pasta = config.home()
@@ -82,7 +82,7 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
     detectados = instalador.apps_detectados()
     if not detectados:
         _linha(None, "nenhum app compativel encontrado",
-               "instale o Claude Desktop ou Claude Code e rode `suap-mcp instalar` de novo")
+               "instale o Claude Desktop ou Claude Code e rode `sabichao instalar` de novo")
     escolhidos = []
     for app in detectados:
         if apps_escolhidos is not None:
@@ -104,8 +104,8 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
         _linha(True, "sessao salva encontrada")
     elif com_login and _pergunta("Abrir janela do SUAP para login agora?", True, automatico):
         try:
-            from suap_mcp.client import SuapClient
-            from suap_mcp import parsers
+            from sabichao.client import SuapClient
+            from sabichao import parsers
             print("    Janela aberta — faca o login nela (fecha sozinha)...")
             cookies = auth.login_interativo()
             with SuapClient(cookies) as client:
@@ -113,12 +113,12 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
             nome = (info.get("nome") or "").split()[0] if info.get("nome") else "estudante"
             _linha(True, f"Logado como {nome}!", info.get("matricula", ""))
         except Exception as erro:
-            _linha(False, "login nao concluido", f"{erro} — tente depois com `suap-mcp login`")
+            _linha(False, "login nao concluido", f"{erro} — tente depois com `sabichao login`")
     else:
-        _linha(None, "rode `suap-mcp login` quando quiser")
+        _linha(None, "rode `sabichao login` quando quiser")
 
     try:
-        from suap_mcp.mascote import render
+        from sabichao.mascote import render
         print(render("comemorando", "pequeno"))
     except Exception:
         pass
@@ -127,8 +127,8 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
 
 
 def cmd_login() -> int:
-    from suap_mcp import auth, parsers
-    from suap_mcp.client import SuapClient
+    from sabichao import auth, parsers
+    from sabichao.client import SuapClient
 
     print("Faca login na janela que vai abrir (CAPTCHA/Gov.br). Ela fecha sozinha.")
     try:
@@ -143,7 +143,7 @@ def cmd_login() -> int:
 
 
 def cmd_doctor() -> int:
-    from suap_mcp import instalador
+    from sabichao import instalador
 
     verificacoes = instalador.diagnostico()
     for v in verificacoes:
@@ -152,7 +152,7 @@ def cmd_doctor() -> int:
 
 
 def cmd_desinstalar() -> int:
-    from suap_mcp import instalador
+    from sabichao import instalador
 
     print(f"\n  {_cor(f'Desinstalar {NOME}', 'negrito')}\n")
     resultados = instalador.desconectar_todos()
@@ -160,12 +160,12 @@ def cmd_desinstalar() -> int:
         _linha(r.ok, r.alvo, r.mensagem)
     if not resultados:
         _linha(True, "nenhum app estava conectado")
-    print(f"\n  Para remover o programa: {_cor('uv tool uninstall suap-mcp', 'negrito')}\n")
+    print(f"\n  Para remover o programa: {_cor('uv tool uninstall sabichao', 'negrito')}\n")
     return 0
 
 
 def cmd_mcp() -> None:
-    from suap_mcp.server import main
+    from sabichao.server import main
     main()
 
 
@@ -201,5 +201,5 @@ def main() -> None:
         print("  --sim          Aceita tudo sem perguntar")
         print("  --sem-login    Pula o login no SUAP")
     else:
-        print(f"Comando desconhecido: {args[0]}. Use `suap-mcp --help`.")
+        print(f"Comando desconhecido: {args[0]}. Use `sabichao --help`.")
         sys.exit(1)

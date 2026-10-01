@@ -10,7 +10,7 @@ import re
 
 import httpx
 
-from suap_mcp.config import BASE_URL
+from sabichao.config import BASE_URL
 
 _ROTAS_PERMITIDAS = [
     # -- Pagina do aluno e todas as abas --
@@ -77,7 +77,7 @@ class SuapClient:
             cookies=cookies,
             follow_redirects=True,
             timeout=60,
-            headers={"User-Agent": "suap-mcp/0.1 (+uso pessoal do estudante)"},
+            headers={"User-Agent": "sabichao/0.1 (+uso pessoal do estudante)"},
             transport=transport,
         )
 

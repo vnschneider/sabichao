@@ -1,4 +1,4 @@
-export const REPOSITORIO = "https://github.com/vnschneider/suap-mcp";
+export const REPOSITORIO = "https://github.com/vnschneider/sabichao";
 
 const origem = typeof window !== "undefined" && window.location.origin.startsWith("http")
   ? window.location.origin
@@ -113,6 +113,6 @@ export const PERGUNTAS = [
   {
     pergunta: "Posso desfazer a instalacao?",
     resposta:
-      "Sim. O comando suap-mcp desinstalar tira o Sabichao dos seus apps. Para remover o programa: uv tool uninstall suap-mcp.",
+      "Sim. O comando sabichao desinstalar tira o Sabichao dos seus apps. Para remover o programa: uv tool uninstall sabichao.",
   },
 ];

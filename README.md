@@ -11,9 +11,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/vnschneider/suap-mcp/releases"><img alt="Release" src="https://img.shields.io/github/v/release/vnschneider/suap-mcp?style=flat-square&color=FFB800"></a>
-  <a href="https://github.com/vnschneider/suap-mcp/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0-1B2A4A?style=flat-square"></a>
-  <a href="https://pypi.org/project/suap-mcp"><img alt="PyPI" src="https://img.shields.io/pypi/v/suap-mcp?style=flat-square&color=FFB800"></a>
+  <a href="https://github.com/vnschneider/sabichao/releases"><img alt="Release" src="https://img.shields.io/github/v/release/vnschneider/sabichao?style=flat-square&color=FFB800"></a>
+  <a href="https://github.com/vnschneider/sabichao/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0-1B2A4A?style=flat-square"></a>
+  <a href="https://pypi.org/project/sabichao"><img alt="PyPI" src="https://img.shields.io/pypi/v/sabichao?style=flat-square&color=FFB800"></a>
 </p>
 
 ---
@@ -23,13 +23,13 @@
 **Windows** (PowerShell):
 
 ```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/vnschneider/suap-mcp/main/install.ps1 | iex"
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/vnschneider/sabichao/main/install.ps1 | iex"
 ```
 
 **macOS / Linux**:
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/vnschneider/suap-mcp/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/vnschneider/sabichao/main/install.sh | sh
 ```
 
 O instalador cuida de tudo: Python, navegador, conexao com os apps de IA e login no SUAP.
@@ -54,16 +54,16 @@ O instalador cuida de tudo: Python, navegador, conexao com os apps de IA e login
 | Gemini CLI | `settings.json` |
 | OpenCode | `opencode.json` |
 
-O comando `suap-mcp instalar` detecta os apps instalados e configura cada um automaticamente.
+O comando `sabichao instalar` detecta os apps instalados e configura cada um automaticamente.
 
 ## CLI
 
 ```bash
-suap-mcp              # inicia o servidor MCP (stdio)
-suap-mcp instalar     # instala tudo: navegador, apps, login, diagnostico
-suap-mcp login        # abre janela do SUAP para login
-suap-mcp doctor       # diagnostico: o que esta pronto, o que falta
-suap-mcp desinstalar  # remove dos apps de IA
+sabichao              # inicia o servidor MCP (stdio)
+sabichao instalar     # instala tudo: navegador, apps, login, diagnostico
+sabichao login        # abre janela do SUAP para login
+sabichao doctor       # diagnostico: o que esta pronto, o que falta
+sabichao desinstalar  # remove dos apps de IA
 ```
 
 ## Tools MCP
@@ -93,24 +93,24 @@ suap-mcp desinstalar  # remove dos apps de IA
 ## Instalacao manual
 
 ```bash
-uv tool install suap-mcp
-suap-mcp instalar
+uv tool install sabichao
+sabichao instalar
 ```
 
 Para desenvolvimento:
 
 ```bash
-git clone https://github.com/vnschneider/suap-mcp.git
-cd suap-mcp
+git clone https://github.com/vnschneider/sabichao.git
+cd sabichao
 uv sync
 playwright install chromium
-uv run suap-mcp doctor
+uv run sabichao doctor
 ```
 
 ## Estrutura
 
 ```
-src/suap_mcp/
+src/sabichao/
   config.py       URL base, keyring, diretorios
   auth.py         Login via Playwright + sessao no keyring
   client.py       Cliente HTTP com allowlist de rotas

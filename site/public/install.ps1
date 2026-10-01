@@ -1,16 +1,16 @@
 # Sabichao: instalador para Windows.
 # Uso (PowerShell):
-#   powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/vnschneider/suap-mcp/main/install.ps1 | iex"
+#   powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/vnschneider/sabichao/main/install.ps1 | iex"
 #
 # O que faz: instala o uv (gerenciador de Python da Astral) se faltar, instala o Sabichao
-# com `uv tool install` e abre o assistente `suap-mcp instalar` (navegador, apps de IA,
+# com `uv tool install` e abre o assistente `sabichao instalar` (navegador, apps de IA,
 # login no SUAP e diagnostico). Nao pede senha de administrador.
 
 $ErrorActionPreference = 'Continue'
 $ProgressPreference = 'SilentlyContinue'
 
 $Origem = if ($env:SUAP_MCP_ORIGEM) { $env:SUAP_MCP_ORIGEM } else {
-    'suap-mcp @ https://github.com/vnschneider/suap-mcp/archive/refs/heads/main.zip'
+    'sabichao @ https://github.com/vnschneider/sabichao/archive/refs/heads/main.zip'
 }
 
 function Diga([string]$texto) { Write-Host "  $texto" -ForegroundColor DarkYellow }
@@ -28,11 +28,11 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
 }
 
 Diga 'Instalando o Sabichao (pode levar 1 ou 2 minutos)...'
-uv tool install --force --reinstall-package suap-mcp --python 3.12 $Origem
+uv tool install --force --reinstall-package sabichao --python 3.12 $Origem
 if ($LASTEXITCODE -ne 0) { throw 'Nao consegui instalar o Sabichao.' }
 uv tool update-shell *> $null
 
 $bin = (uv tool dir --bin).Trim()
 $env:Path = "$bin;$env:Path"
 if ($env:SUAP_MCP_SO_INSTALAR) { Diga "Instalado em $bin"; return }
-& (Join-Path $bin 'suap-mcp.exe') instalar
+& (Join-Path $bin 'sabichao.exe') instalar

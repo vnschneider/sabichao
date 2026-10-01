@@ -6,7 +6,7 @@ Nome: Sabichao. Tagline: "seu SUAP na ponta da lingua". Mascote: coruja com cape
 ## Estrutura
 
 ```
-src/suap_mcp/
+src/sabichao/
   config.py       - URL base, keyring, diretorios
   auth.py         - Login via Playwright + sessao no keyring
   client.py       - Cliente HTTP com allowlist de rotas (foco estudante)
@@ -34,11 +34,11 @@ install.sh        - Instalador one-liner macOS/Linux
 ## CLI
 
 ```bash
-suap-mcp              # inicia servidor MCP (stdio)
-suap-mcp instalar     # navegador + apps de IA + login + diagnostico
-suap-mcp login        # abre janela do SUAP para login
-suap-mcp doctor       # diagnostico
-suap-mcp desinstalar  # remove dos apps de IA
+sabichao              # inicia servidor MCP (stdio)
+sabichao instalar     # navegador + apps de IA + login + diagnostico
+sabichao login        # abre janela do SUAP para login
+sabichao doctor       # diagnostico
+sabichao desinstalar  # remove dos apps de IA
 ```
 
 ## Site
@@ -61,7 +61,7 @@ Deploy: Coolify com Dockerfile, Base Directory `/site`. Dominio via Traefik.
 
 ```bash
 uv sync
-uv run suap-mcp doctor
+uv run sabichao doctor
 
 # Site:
 cd site && npm install && npm run dev

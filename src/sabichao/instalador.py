@@ -1,6 +1,6 @@
 """Logica de instalacao: navegador, apps de IA, login e diagnostico.
 
-Chamado por `suap-mcp instalar` apos o script de uma linha (install.ps1/install.sh).
+Chamado por `sabichao instalar` apos o script de uma linha (install.ps1/install.sh).
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from suap_mcp import auth, config, hosts
+from sabichao import auth, config, hosts
 
 
 @dataclass
@@ -76,7 +76,7 @@ def diagnostico() -> list[dict]:
     verificacoes.append({
         "item": "Sessao SUAP",
         "ok": cookies is not None,
-        "detalhe": "sessao salva no keyring" if cookies else "sem sessao - use `suap-mcp login`",
+        "detalhe": "sessao salva no keyring" if cookies else "sem sessao - use `sabichao login`",
     })
     verificacoes.append({
         "item": "Navegador",
