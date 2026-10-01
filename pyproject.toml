@@ -1,5 +1,5 @@
 [project]
-name = "suap-mcp"
+name = "sabichao"
 version = "0.1.0"
 description = "Servidor MCP para estudantes consultarem o SUAP (ensino, pesquisa, extensao e projetos)."
 readme = "README.md"
@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.scripts]
-suap-mcp = "suap_mcp:main"
+sabichao = "suap_mcp:main"
 
 [build-system]
 requires = ["uv_build>=0.11.1,<0.12.0"]

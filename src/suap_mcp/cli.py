@@ -1,4 +1,4 @@
-"""CLI `suap-mcp` - instalar, login, diagnostico e servidor MCP.
+"""CLI `sabichao` - instalar, login, diagnostico e servidor MCP.
 
 Sabichao: seu SUAP na ponta da lingua.
 """
@@ -72,7 +72,7 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
         r = instalador.instalar_chromium()
         _linha(r.ok, r.mensagem)
     else:
-        _linha(None, "sem navegador — instale o Google Chrome e rode `suap-mcp instalar` de novo")
+        _linha(None, "sem navegador — instale o Google Chrome e rode `sabichao instalar` de novo")
 
     _passo(2, total, "Pasta de dados")
     pasta = config.home()
@@ -82,7 +82,7 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
     detectados = instalador.apps_detectados()
     if not detectados:
         _linha(None, "nenhum app compativel encontrado",
-               "instale o Claude Desktop ou Claude Code e rode `suap-mcp instalar` de novo")
+               "instale o Claude Desktop ou Claude Code e rode `sabichao instalar` de novo")
     escolhidos = []
     for app in detectados:
         if apps_escolhidos is not None:
@@ -113,9 +113,9 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
             nome = (info.get("nome") or "").split()[0] if info.get("nome") else "estudante"
             _linha(True, f"Logado como {nome}!", info.get("matricula", ""))
         except Exception as erro:
-            _linha(False, "login nao concluido", f"{erro} — tente depois com `suap-mcp login`")
+            _linha(False, "login nao concluido", f"{erro} — tente depois com `sabichao login`")
     else:
-        _linha(None, "rode `suap-mcp login` quando quiser")
+        _linha(None, "rode `sabichao login` quando quiser")
 
     try:
         from suap_mcp.mascote import render
@@ -160,7 +160,7 @@ def cmd_desinstalar() -> int:
         _linha(r.ok, r.alvo, r.mensagem)
     if not resultados:
         _linha(True, "nenhum app estava conectado")
-    print(f"\n  Para remover o programa: {_cor('uv tool uninstall suap-mcp', 'negrito')}\n")
+    print(f"\n  Para remover o programa: {_cor('uv tool uninstall sabichao', 'negrito')}\n")
     return 0
 
 
@@ -201,5 +201,5 @@ def main() -> None:
         print("  --sim          Aceita tudo sem perguntar")
         print("  --sem-login    Pula o login no SUAP")
     else:
-        print(f"Comando desconhecido: {args[0]}. Use `suap-mcp --help`.")
+        print(f"Comando desconhecido: {args[0]}. Use `sabichao --help`.")
         sys.exit(1)

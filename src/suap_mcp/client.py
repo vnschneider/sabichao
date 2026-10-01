@@ -77,7 +77,7 @@ class SuapClient:
             cookies=cookies,
             follow_redirects=True,
             timeout=60,
-            headers={"User-Agent": "suap-mcp/0.1 (+uso pessoal do estudante)"},
+            headers={"User-Agent": "sabichao/0.1 (+uso pessoal do estudante)"},
             transport=transport,
         )
 
