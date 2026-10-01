@@ -1,0 +1,47 @@
+.recursos {
+  border-top: 1px solid var(--borda);
+}
+
+.recursos-grade {
+  list-style: none;
+  padding: 0;
+  margin: 48px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.recursos-grade li {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 28px;
+}
+
+.recursos-icone {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--raio-pequeno);
+  background: var(--elevado);
+  color: var(--ambar);
+  margin-bottom: 18px;
+}
+
+.recursos-grade h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.recursos-grade p {
+  margin: 0;
+  color: var(--apagado);
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  .recursos-grade {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,14 +1,20 @@
-"""CLI `suap-mcp` - instalar, login, diagnostico e servidor MCP."""
+"""CLI `suap-mcp` - instalar, login, diagnostico e servidor MCP.
+
+Sabichao: seu SUAP na ponta da lingua.
+"""
 
 from __future__ import annotations
 
 import os
 import sys
 
+NOME = "Sabichao"
+TAGLINE = "seu SUAP na ponta da lingua"
+
 
 def _cor(texto: str, cor: str) -> str:
     cores = {"verde": "\033[32m", "amarelo": "\033[33m", "vermelho": "\033[31m",
-             "negrito": "\033[1m", "apagado": "\033[2m"}
+             "negrito": "\033[1m", "apagado": "\033[2m", "ciano": "\033[36m"}
     return f"{cores.get(cor, '')}{texto}\033[0m"
 
 
@@ -38,13 +44,23 @@ def _pergunta(texto: str, padrao: bool, automatico: bool) -> bool:
     return resposta in ("s", "sim", "y", "yes")
 
 
+def _mascote_banner() -> None:
+    try:
+        from suap_mcp.mascote import render
+        print(render("normal", "pequeno"))
+    except Exception:
+        pass
+
+
 def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = None,
                  com_login: bool = True) -> int:
     """Prepara tudo: navegador, pasta de dados, conexao com apps de IA, login e diagnostico."""
     from suap_mcp import auth, config, instalador
 
-    print(f"\n  {_cor('SUAP MCP', 'negrito')} - consulta o SUAP IFMA para estudantes")
-    print(f"  {_cor('Ferramenta independente, nao oficial. Somente leitura.', 'apagado')}\n")
+    print()
+    _mascote_banner()
+    print(f"\n  {_cor(NOME, 'negrito')} - {_cor(TAGLINE, 'ciano')}")
+    print(f"  {_cor('Consulta o SUAP IFMA para estudantes. Somente leitura.', 'apagado')}\n")
 
     total = 4
 
@@ -101,6 +117,11 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
     else:
         _linha(None, "rode `suap-mcp login` quando quiser")
 
+    try:
+        from suap_mcp.mascote import render
+        print(render("comemorando", "pequeno"))
+    except Exception:
+        pass
     print(f"\n  {_cor('Pronto!', 'negrito')} No Claude (ou outro app), pergunte sobre suas notas, projetos ou relatorios.\n")
     return 0
 
@@ -133,7 +154,7 @@ def cmd_doctor() -> int:
 def cmd_desinstalar() -> int:
     from suap_mcp import instalador
 
-    print(f"\n  {_cor('Desinstalar SUAP MCP', 'negrito')}\n")
+    print(f"\n  {_cor(f'Desinstalar {NOME}', 'negrito')}\n")
     resultados = instalador.desconectar_todos()
     for r in resultados:
         _linha(r.ok, r.alvo, r.mensagem)
@@ -169,13 +190,13 @@ def main() -> None:
     elif args[0] == "desinstalar":
         sys.exit(cmd_desinstalar())
     elif args[0] in ("-h", "--help", "help"):
-        print("suap-mcp - consulta o SUAP IFMA para estudantes\n")
+        print(f"{NOME} - {TAGLINE}\n")
         print("Comandos:")
         print("  (sem comando)  Inicia o servidor MCP (stdio)")
         print("  instalar       Prepara tudo: navegador, apps de IA, login")
         print("  login          Abre janela do SUAP para login")
         print("  doctor         Diagnostico: o que esta pronto, o que falta")
-        print("  desinstalar    Remove o SUAP MCP dos apps de IA")
+        print("  desinstalar    Remove o Sabichao dos apps de IA")
         print("\nOpcoes de `instalar`:")
         print("  --sim          Aceita tudo sem perguntar")
         print("  --sem-login    Pula o login no SUAP")

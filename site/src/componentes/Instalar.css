@@ -1,0 +1,69 @@
+.instalar {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  max-width: 640px;
+  overflow: hidden;
+}
+
+.instalar-abas {
+  display: flex;
+  border-bottom: 1px solid var(--borda);
+  padding-inline: 8px;
+}
+
+.instalar-abas button {
+  background: none;
+  border: 0;
+  color: var(--apagado);
+  font: 600 14px var(--fonte);
+  padding: 13px 14px 11px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s;
+}
+
+.instalar-abas button[aria-selected="true"] {
+  color: var(--texto-forte);
+  border-bottom-color: var(--ambar);
+}
+
+.instalar-painel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 10px;
+}
+
+.instalar-comando {
+  flex: 1;
+  min-width: 0;
+  font: 14px/1.55 var(--mono);
+  color: var(--texto-forte);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.instalar-comando::before {
+  content: "\203A  ";
+  color: var(--ambar);
+}
+
+.instalar-dica {
+  margin: 0;
+  padding: 0 18px 16px;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+@media (max-width: 520px) {
+  .instalar-painel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .instalar-copiar {
+    justify-content: center;
+  }
+}

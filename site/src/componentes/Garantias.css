@@ -1,0 +1,53 @@
+.garantias-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+}
+
+.garantias-frase {
+  font-size: clamp(38px, 5.4vw, 64px);
+  line-height: 1.04;
+  font-weight: 800;
+  position: sticky;
+  top: 112px;
+}
+
+.garantias-frase span {
+  color: var(--ambar);
+}
+
+.garantias-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 36px;
+}
+
+.garantias-lista li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 16px;
+  color: var(--ambar);
+}
+
+.garantias-lista h3 {
+  font-size: 21px;
+  margin-bottom: 6px;
+}
+
+.garantias-lista p {
+  margin: 0;
+  color: var(--apagado);
+  max-width: 48ch;
+}
+
+@media (max-width: 860px) {
+  .garantias-grade {
+    grid-template-columns: 1fr;
+  }
+  .garantias-frase {
+    position: static;
+  }
+}
