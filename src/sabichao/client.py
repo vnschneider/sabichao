@@ -10,7 +10,7 @@ import re
 
 import httpx
 
-from suap_mcp.config import BASE_URL
+from sabichao.config import BASE_URL
 
 _ROTAS_PERMITIDAS = [
     # -- Pagina do aluno e todas as abas --

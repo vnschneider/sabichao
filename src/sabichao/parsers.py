@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 
-from suap_mcp.html_utils import (
+from sabichao.html_utils import (
     Celula,
     definicoes,
     documento,

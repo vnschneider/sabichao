@@ -46,7 +46,7 @@ def _pergunta(texto: str, padrao: bool, automatico: bool) -> bool:
 
 def _mascote_banner() -> None:
     try:
-        from suap_mcp.mascote import render
+        from sabichao.mascote import render
         print(render("normal", "pequeno"))
     except Exception:
         pass
@@ -55,7 +55,7 @@ def _mascote_banner() -> None:
 def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = None,
                  com_login: bool = True) -> int:
     """Prepara tudo: navegador, pasta de dados, conexao com apps de IA, login e diagnostico."""
-    from suap_mcp import auth, config, instalador
+    from sabichao import auth, config, instalador
 
     print()
     _mascote_banner()
@@ -104,8 +104,8 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
         _linha(True, "sessao salva encontrada")
     elif com_login and _pergunta("Abrir janela do SUAP para login agora?", True, automatico):
         try:
-            from suap_mcp.client import SuapClient
-            from suap_mcp import parsers
+            from sabichao.client import SuapClient
+            from sabichao import parsers
             print("    Janela aberta — faca o login nela (fecha sozinha)...")
             cookies = auth.login_interativo()
             with SuapClient(cookies) as client:
@@ -118,7 +118,7 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
         _linha(None, "rode `sabichao login` quando quiser")
 
     try:
-        from suap_mcp.mascote import render
+        from sabichao.mascote import render
         print(render("comemorando", "pequeno"))
     except Exception:
         pass
@@ -127,8 +127,8 @@ def cmd_instalar(automatico: bool = False, apps_escolhidos: list[str] | None = N
 
 
 def cmd_login() -> int:
-    from suap_mcp import auth, parsers
-    from suap_mcp.client import SuapClient
+    from sabichao import auth, parsers
+    from sabichao.client import SuapClient
 
     print("Faca login na janela que vai abrir (CAPTCHA/Gov.br). Ela fecha sozinha.")
     try:
@@ -143,7 +143,7 @@ def cmd_login() -> int:
 
 
 def cmd_doctor() -> int:
-    from suap_mcp import instalador
+    from sabichao import instalador
 
     verificacoes = instalador.diagnostico()
     for v in verificacoes:
@@ -152,7 +152,7 @@ def cmd_doctor() -> int:
 
 
 def cmd_desinstalar() -> int:
-    from suap_mcp import instalador
+    from sabichao import instalador
 
     print(f"\n  {_cor(f'Desinstalar {NOME}', 'negrito')}\n")
     resultados = instalador.desconectar_todos()
@@ -165,7 +165,7 @@ def cmd_desinstalar() -> int:
 
 
 def cmd_mcp() -> None:
-    from suap_mcp.server import main
+    from sabichao.server import main
     main()
 
 

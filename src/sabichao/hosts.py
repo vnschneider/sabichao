@@ -20,7 +20,7 @@ NOME_SERVIDOR = "sabichao"
 
 
 def comando_mcp() -> list[str]:
-    return [sys.executable, "-m", "suap_mcp", "mcp"]
+    return [sys.executable, "-m", "sabichao", "mcp"]
 
 
 def _home() -> Path:

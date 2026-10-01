@@ -11,8 +11,8 @@ import json
 
 import keyring
 
-from suap_mcp import config
-from suap_mcp.config import BASE_URL, KEYRING_SERVICE
+from sabichao import config
+from sabichao.config import BASE_URL, KEYRING_SERVICE
 
 COOKIES_SESSAO = ("__Host-sessionid", "__Host-csrftoken")
 _TEMPO_LOGIN_MS = 10 * 60 * 1000

@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from suap_mcp import auth, config, hosts
+from sabichao import auth, config, hosts
 
 
 @dataclass

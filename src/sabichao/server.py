@@ -9,9 +9,9 @@ from __future__ import annotations
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
-from suap_mcp import auth, normas, parsers
-from suap_mcp.client import SessaoExpirada, SuapClient
-from suap_mcp.config import BASE_URL
+from sabichao import auth, normas, parsers
+from sabichao.client import SessaoExpirada, SuapClient
+from sabichao.config import BASE_URL
 
 INSTRUCOES = """\
 SUAP MCP: consulta dados academicos do SUAP IFMA para o estudante logado. Somente leitura.

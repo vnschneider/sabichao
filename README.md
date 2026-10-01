@@ -110,7 +110,7 @@ uv run sabichao doctor
 ## Estrutura
 
 ```
-src/suap_mcp/
+src/sabichao/
   config.py       URL base, keyring, diretorios
   auth.py         Login via Playwright + sessao no keyring
   client.py       Cliente HTTP com allowlist de rotas

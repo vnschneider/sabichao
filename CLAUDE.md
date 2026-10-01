@@ -6,7 +6,7 @@ Nome: Sabichao. Tagline: "seu SUAP na ponta da lingua". Mascote: coruja com cape
 ## Estrutura
 
 ```
-src/suap_mcp/
+src/sabichao/
   config.py       - URL base, keyring, diretorios
   auth.py         - Login via Playwright + sessao no keyring
   client.py       - Cliente HTTP com allowlist de rotas (foco estudante)

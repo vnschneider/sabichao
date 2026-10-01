@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 # O import funciona a partir da raiz do projeto (uv run).
-from suap_mcp import mascote
+from sabichao import mascote
 
 DESTINO = Path(__file__).parent / "public"
 
