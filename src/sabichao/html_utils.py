@@ -147,6 +147,143 @@ def extrair_badges(doc: lhtml.HtmlElement) -> list[dict[str, str]]:
     return badges
 
 
+_ACOES_KEYWORDS = {
+    "registrar", "editar", "adicionar", "gerenciar",
+    "enviar", "submeter", "cadastrar", "alterar",
+    "salvar", "incluir", "anexar",
+}
+
+
+@dataclass
+class CampoFormulario:
+    nome: str
+    tipo: str
+    valor: str = ""
+    rotulo: str = ""
+    opcoes: list[dict[str, str]] = field(default_factory=list)
+    obrigatorio: bool = False
+
+    def como_dict(self) -> dict:
+        d: dict = {"nome": self.nome, "tipo": self.tipo}
+        if self.rotulo:
+            d["rotulo"] = self.rotulo
+        if self.valor:
+            d["valor"] = self.valor
+        if self.opcoes:
+            d["opcoes"] = self.opcoes
+        if self.obrigatorio:
+            d["obrigatorio"] = True
+        return d
+
+
+@dataclass
+class Formulario:
+    acao: str
+    metodo: str
+    campos: list[CampoFormulario]
+    csrf_token: str = ""
+
+    def como_dict(self) -> dict:
+        return {
+            "acao": self.acao,
+            "metodo": self.metodo,
+            "campos": [c.como_dict() for c in self.campos],
+        }
+
+
+def _rotulo_campo(form_el: lhtml.HtmlElement, campo: lhtml.HtmlElement) -> str:
+    campo_id = campo.get("id", "")
+    if campo_id:
+        for label in form_el.iter("label"):
+            if label.get("for") == campo_id:
+                return texto(label).rstrip(": ")
+    parent = campo.getparent()
+    while parent is not None and parent != form_el:
+        if parent.tag == "label":
+            return texto(parent).rstrip(": ")
+        parent = parent.getparent()
+    return ""
+
+
+def extrair_formularios(doc: lhtml.HtmlElement) -> list[Formulario]:
+    """Extrai formularios HTML com seus campos, tipos e valores atuais."""
+    formularios: list[Formulario] = []
+    for form_el in doc.iter("form"):
+        acao = form_el.get("action", "")
+        metodo = (form_el.get("method") or "get").upper()
+        csrf = ""
+        campos: list[CampoFormulario] = []
+
+        for inp in form_el.iter("input"):
+            nome = inp.get("name", "")
+            if not nome:
+                continue
+            tipo = inp.get("type", "text").lower()
+            valor = inp.get("value", "")
+            if nome == "csrfmiddlewaretoken":
+                csrf = valor
+                continue
+            if tipo in ("submit", "button", "image"):
+                continue
+            obrigatorio = inp.get("required") is not None
+            rotulo = _rotulo_campo(form_el, inp)
+            campos.append(CampoFormulario(nome=nome, tipo=tipo, valor=valor, rotulo=rotulo, obrigatorio=obrigatorio))
+
+        for ta in form_el.iter("textarea"):
+            nome = ta.get("name", "")
+            if not nome:
+                continue
+            obrigatorio = ta.get("required") is not None
+            rotulo = _rotulo_campo(form_el, ta)
+            campos.append(CampoFormulario(nome=nome, tipo="textarea", valor=texto(ta), rotulo=rotulo, obrigatorio=obrigatorio))
+
+        for sel in form_el.iter("select"):
+            nome = sel.get("name", "")
+            if not nome:
+                continue
+            obrigatorio = sel.get("required") is not None
+            rotulo = _rotulo_campo(form_el, sel)
+            opcoes = []
+            valor_sel = ""
+            for opt in sel.iter("option"):
+                v = opt.get("value", "")
+                t = texto(opt)
+                if opt.get("selected") is not None:
+                    valor_sel = v
+                opcoes.append({"valor": v, "texto": t})
+            campos.append(CampoFormulario(nome=nome, tipo="select", valor=valor_sel, rotulo=rotulo, opcoes=opcoes, obrigatorio=obrigatorio))
+
+        if campos or csrf:
+            formularios.append(Formulario(acao=acao, metodo=metodo, campos=campos, csrf_token=csrf))
+    return formularios
+
+
+_ACOES_EXCLUIR = {"breadcrumbs_reset", "/admin/", "/accounts/"}
+
+
+def extrair_links_acoes(doc: lhtml.HtmlElement) -> list[dict[str, str]]:
+    """Extrai links de acao (botoes, links com verbos de escrita).
+
+    Filtra links de navegacao/sidebar (breadcrumbs_reset, admin, accounts).
+    """
+    acoes: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for a in doc.iter("a"):
+        href = a.get("href", "").strip()
+        t = texto(a).strip()
+        if not href or not t or href.startswith("#") or href.startswith("javascript:"):
+            continue
+        if any(ex in href for ex in _ACOES_EXCLUIR):
+            continue
+        cls = a.get("class", "")
+        is_btn = "btn" in cls
+        is_action = any(kw in t.lower() for kw in _ACOES_KEYWORDS)
+        if (is_btn or is_action) and href not in seen:
+            seen.add(href)
+            acoes.append({"texto": t, "url": href})
+    return acoes
+
+
 def pagina_estruturada(html_texto: str) -> dict:
     """Extrai dados estruturados genericos de uma pagina do SUAP."""
     doc = documento(html_texto)
