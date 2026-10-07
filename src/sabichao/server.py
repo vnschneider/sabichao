@@ -303,6 +303,10 @@ def projeto_aba(projeto_id: str, aba: str, tipo: str = "pesquisa") -> dict:
                 resultado = {"anexos": parsers.parse_projeto_anexos(html)}
             elif aba == "relatorios":
                 resultado = {"relatorios": parsers.parse_projeto_relatorios(html)}
+            elif aba == "pendencias":
+                resultado = parsers.parse_projeto_pendencias(html)
+            elif aba == "conclusao":
+                resultado = parsers.parse_projeto_conclusao(html)
             else:
                 resultado = parsers.parse_projeto_aba(html, aba)
             resultado["url_suap"] = url_suap

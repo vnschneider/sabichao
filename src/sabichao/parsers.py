@@ -12,10 +12,13 @@ from sabichao.html_utils import (
     definicoes,
     documento,
     extrair_abas,
+    extrair_checklist,
     extrair_links_acoes,
     id_da_url,
     parse_data,
     secoes_accordion,
+    tab_pane,
+    tabela_info,
     tabelas,
     tabelas_com,
     texto,
@@ -215,13 +218,52 @@ def parse_projeto_dados_gerais(pagina: str) -> dict:
     return resultado
 
 
+def parse_projeto_pendencias(pagina: str) -> dict:
+    """Itens de pendencia de um projeto (checklist de finalizacao)."""
+    doc = documento(pagina)
+    pane = tab_pane(doc, "pendencias")
+    el = pane if pane is not None else doc
+    itens = extrair_checklist(el)
+    acoes = extrair_links_acoes(el)
+    resultado: dict = {"aba": "pendencias", "itens": itens}
+    if acoes:
+        resultado["acoes_disponiveis"] = acoes
+    alertas = [texto(p) for p in el.xpath('.//p[contains(@class, "alert")]') if texto(p)]
+    if alertas:
+        resultado["alertas"] = alertas
+    return resultado
+
+
+def parse_projeto_conclusao(pagina: str) -> dict:
+    """Dados de conclusao de um projeto (resultados, disseminacao, avaliacao)."""
+    doc = documento(pagina)
+    pane = tab_pane(doc, "conclusao")
+    el = pane if pane is not None else doc
+    dados = tabela_info(el)
+    acoes = extrair_links_acoes(el)
+    resultado: dict = {"aba": "conclusao"}
+    if dados:
+        resultado["dados"] = dados
+    else:
+        alertas = [texto(p) for p in el.xpath('.//p[contains(@class, "alert")]') if texto(p)]
+        if alertas:
+            resultado["alertas"] = alertas
+        else:
+            resultado["alertas"] = ["Nenhum registro de conclusão cadastrado."]
+    if acoes:
+        resultado["acoes_disponiveis"] = acoes
+    return resultado
+
+
 def parse_projeto_aba(pagina: str, nome_aba: str) -> dict:
     """Conteudo generico de uma aba de projeto com acoes disponiveis."""
     doc = documento(pagina)
-    campos = definicoes(doc)
-    tabs = tabelas(doc)
-    secoes = secoes_accordion(doc)
-    acoes = extrair_links_acoes(doc)
+    pane = tab_pane(doc, nome_aba)
+    el = pane if pane is not None else doc
+    campos = definicoes(el)
+    tabs = tabelas(el)
+    secoes = secoes_accordion(el)
+    acoes = extrair_links_acoes(el)
 
     resultado: dict = {"aba": nome_aba}
     if campos:
@@ -233,10 +275,18 @@ def parse_projeto_aba(pagina: str, nome_aba: str) -> dict:
     if acoes:
         resultado["acoes_disponiveis"] = acoes
 
+    alertas = [texto(p) for p in el.xpath('.//p[contains(@class, "alert")]') if texto(p)]
+    if alertas:
+        resultado["alertas"] = alertas
+
+    info = tabela_info(el)
+    if info:
+        resultado.setdefault("campos", {}).update(info)
+
     textos_longos = []
-    for el in doc.xpath("//p | //div[contains(@class, 'box-body')]"):
-        t = texto(el)
-        if len(t) > 100:
+    for p in el.xpath(".//p | .//div[contains(@class, 'box-body')]"):
+        t = texto(p)
+        if len(t) > 100 and "alert" not in (p.get("class") or ""):
             textos_longos.append(t[:2000])
     if textos_longos:
         resultado["conteudo_texto"] = textos_longos[:10]

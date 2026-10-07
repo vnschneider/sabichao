@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "Read|Grep|Glob|Search|Shell",
+        "command": "node \"C:\\Users\\Schneider\\Documents\\GitHub\\sabichao\\.cursor\\hooks\\graft-hooks.cjs\" cursor-post-tool"
+      }
+    ],
+    "afterMCPExecution": [
+      {
+        "command": "node \"C:\\Users\\Schneider\\Documents\\GitHub\\sabichao\\.cursor\\hooks\\graft-hooks.cjs\" cursor-mcp"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "node \"C:\\Users\\Schneider\\Documents\\GitHub\\sabichao\\.cursor\\hooks\\graft-hooks.cjs\" cursor-session-end"
+      }
+    ]
+  }
+}
