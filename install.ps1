@@ -27,6 +27,14 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     if (-not (Get-Command uv -ErrorAction SilentlyContinue)) { throw 'Nao consegui instalar o uv.' }
 }
 
+$sabichaoProcs = Get-Process -Name python* -ErrorAction SilentlyContinue |
+    Where-Object { $_.Path -like '*uv*tools*sabichao*' }
+if ($sabichaoProcs) {
+    Diga "Sabichao esta rodando ($($sabichaoProcs.Count) processo(s)). Fechando para atualizar..."
+    $sabichaoProcs | Stop-Process -Force
+    Start-Sleep -Seconds 1
+}
+
 Diga 'Instalando o Sabichao (pode levar 1 ou 2 minutos)...'
 uv tool install --force --reinstall-package sabichao --python 3.12 $Origem
 if ($LASTEXITCODE -ne 0) { throw 'Nao consegui instalar o Sabichao.' }

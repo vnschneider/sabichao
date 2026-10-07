@@ -21,6 +21,14 @@ if ! command -v uv >/dev/null 2>&1; then
     export PATH
 fi
 
+sabichao_pids=$(pgrep -f 'uv/tools/sabichao' 2>/dev/null || true)
+if [ -n "$sabichao_pids" ]; then
+    count=$(echo "$sabichao_pids" | wc -l | tr -d ' ')
+    diga "Sabichao esta rodando ($count processo(s)). Fechando para atualizar..."
+    echo "$sabichao_pids" | xargs kill 2>/dev/null || true
+    sleep 1
+fi
+
 diga "Instalando o Sabichao (pode levar 1 ou 2 minutos)..."
 uv tool install --force --reinstall-package sabichao --python 3.12 "$ORIGEM"
 uv tool update-shell >/dev/null 2>&1 || true
