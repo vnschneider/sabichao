@@ -7,6 +7,7 @@ from pathlib import Path
 
 BASE_URL = os.environ.get("SUAP_MCP_URL", "https://suap.ifma.edu.br")
 KEYRING_SERVICE = "sabichao"
+REPO_GITHUB = "vnschneider/sabichao"
 
 
 def home() -> Path:
