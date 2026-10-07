@@ -12,6 +12,7 @@ from sabichao.html_utils import (
     definicoes,
     documento,
     extrair_abas,
+    extrair_links_acoes,
     id_da_url,
     parse_data,
     secoes_accordion,
@@ -215,11 +216,12 @@ def parse_projeto_dados_gerais(pagina: str) -> dict:
 
 
 def parse_projeto_aba(pagina: str, nome_aba: str) -> dict:
-    """Conteudo generico de uma aba de projeto."""
+    """Conteudo generico de uma aba de projeto com acoes disponiveis."""
     doc = documento(pagina)
     campos = definicoes(doc)
     tabs = tabelas(doc)
     secoes = secoes_accordion(doc)
+    acoes = extrair_links_acoes(doc)
 
     resultado: dict = {"aba": nome_aba}
     if campos:
@@ -228,6 +230,8 @@ def parse_projeto_aba(pagina: str, nome_aba: str) -> dict:
         resultado["tabelas"] = [t.como_dict() for t in tabs]
     if secoes:
         resultado["secoes"] = {k: definicoes(v) for k, v in secoes.items()}
+    if acoes:
+        resultado["acoes_disponiveis"] = acoes
 
     textos_longos = []
     for el in doc.xpath("//p | //div[contains(@class, 'box-body')]"):
@@ -270,10 +274,24 @@ def parse_projeto_equipe(pagina: str) -> list[dict]:
 
 
 def parse_projeto_cronograma(pagina: str) -> dict:
-    """Cronograma de um projeto."""
+    """Cronograma de um projeto com metas, atividades e acoes disponiveis."""
     doc = documento(pagina)
-    tabs = tabelas(doc)
-    return {"tabelas": [t.como_dict() for t in tabs]}
+    todas = tabelas(doc)
+    crono = []
+    for t in todas:
+        if t.linhas and any("METAS" in c.texto or "ATIVIDADES" in c.texto for c in t.linhas[0]):
+            crono.append(t)
+            continue
+        if any("Resultados Esperados" in h or "Resultados Obtidos" in h for h in t.cabecalhos):
+            crono.append(t)
+            continue
+        if any("Indicadores" in h and "Qualitativo" in h for h in t.cabecalhos):
+            crono.append(t)
+    acoes = extrair_links_acoes(doc)
+    resultado: dict = {"tabelas": [t.como_dict() for t in crono] if crono else [t.como_dict() for t in todas]}
+    if acoes:
+        resultado["acoes_disponiveis"] = acoes
+    return resultado
 
 
 def parse_projeto_anexos(pagina: str) -> list[dict]:

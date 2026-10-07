@@ -1,7 +1,7 @@
 """Cliente HTTP do SUAP com allowlist de rotas (foco em estudante).
 
-Apenas paginas de consulta do proprio aluno sao permitidas.
-Rotas administrativas e acoes de escrita sao bloqueadas.
+Paginas de consulta e formularios de projeto sao permitidos.
+Rotas administrativas e acoes destrutivas sao bloqueadas.
 """
 
 from __future__ import annotations
@@ -60,6 +60,24 @@ _ROTAS_BLOQUEADAS = [
     r"remover",
 ]
 
+_SEMPRE_BLOQUEADAS = [
+    r"/admin/",
+    r"breadcrumbs_reset",
+    r"/accounts/",
+    r"excluir",
+    r"deletar",
+    r"remover",
+]
+
+_ROTAS_ESCRITA = [
+    r"/pesquisa/projeto/\d+/",
+    r"/pesquisa/[a-z_]+/\d+/",
+    r"/projetos/projeto/\d+/",
+    r"/projetos/[a-z_]+/\d+/",
+    r"/projetos_ensino/projeto/\d+/",
+    r"/projetos_ensino/[a-z_]+/\d+/",
+]
+
 
 class SessaoExpirada(Exception):
     pass
@@ -116,3 +134,41 @@ class SuapClient:
         if not conteudo.startswith(b"%PDF"):
             raise ValueError(f"resposta nao e PDF: {caminho}")
         return conteudo
+
+    # -- Escrita (formularios de projeto) --
+
+    def verificar_rota_escrita(self, caminho: str) -> None:
+        if any(re.search(p, caminho) for p in _SEMPRE_BLOQUEADAS):
+            raise RotaNaoPermitida(caminho)
+        if not any(re.search(p, caminho) for p in _ROTAS_ESCRITA):
+            raise RotaNaoPermitida(caminho)
+
+    def _csrf(self, html_texto: str = "") -> str:
+        m = re.search(r'name=["\']csrfmiddlewaretoken["\']\s+value=["\']([^"\']+)', html_texto)
+        if m:
+            return m[1]
+        return self._http.cookies.get("csrftoken", "")
+
+    def formulario(self, caminho: str) -> tuple[str, list]:
+        """GET uma pagina de formulario e retorna (html, formularios)."""
+        self.verificar_rota_escrita(caminho)
+        resp = self._http.get(caminho)
+        if "/accounts/login" in str(resp.url):
+            raise SessaoExpirada()
+        resp.raise_for_status()
+        from sabichao.html_utils import documento, extrair_formularios
+        doc = documento(resp.text)
+        return resp.text, extrair_formularios(doc)
+
+    def postar(self, caminho: str, dados: dict, csrf_token: str = "") -> httpx.Response:
+        """POST dados de formulario para uma rota de projeto."""
+        self.verificar_rota_escrita(caminho)
+        payload = dict(dados)
+        if csrf_token:
+            payload["csrfmiddlewaretoken"] = csrf_token
+        headers = {"Referer": str(self._http.base_url) + caminho}
+        resp = self._http.post(caminho, data=payload, headers=headers)
+        if "/accounts/login" in str(resp.url):
+            raise SessaoExpirada()
+        resp.raise_for_status()
+        return resp

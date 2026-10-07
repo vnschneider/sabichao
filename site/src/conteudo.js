@@ -25,7 +25,7 @@ export const RECURSOS = [
   },
   {
     titulo: "Projetos de pesquisa",
-    texto: "Consulte seus projetos de pesquisa, extensao e ensino: equipe, cronograma, relatorios e pendencias.",
+    texto: "Consulte e gerencie seus projetos de pesquisa, extensao e ensino: cronograma, relatorios, gastos e pendencias.",
     icone: "projetos",
   },
   {
@@ -57,8 +57,8 @@ export const PASSOS = [
     icone: "perguntar",
   },
   {
-    titulo: "Consultar",
-    texto: "O Sabichao busca no SUAP e traz os dados organizados para o assistente responder.",
+    titulo: "Usar",
+    texto: "O Sabichao busca no SUAP, traz os dados organizados e pode registrar informacoes nos seus projetos.",
     icone: "consultar",
   },
 ];
@@ -78,8 +78,8 @@ export const GARANTIAS = [
     icone: "senha",
   },
   {
-    titulo: "Somente leitura",
-    texto: "O Sabichao consulta seus dados mas nunca altera nada no SUAP. As rotas de escrita sao bloqueadas.",
+    titulo: "Escrita controlada",
+    texto: "Consulta seus dados e permite registrar atividades em projetos. Acoes destrutivas (excluir, deletar) sao bloqueadas.",
     icone: "leitura",
   },
   {
@@ -101,9 +101,9 @@ export const PERGUNTAS = [
       "Nao. E uma ferramenta independente, sem vinculo com o IFMA ou com o SUAP. Ela usa as mesmas telas que voce usa no navegador, com a sua sessao.",
   },
   {
-    pergunta: "O que ele consegue consultar?",
+    pergunta: "O que ele consegue fazer?",
     resposta:
-      "Notas, boletim, historico, matriculas, projetos de pesquisa/extensao/ensino, equipe, cronograma, relatorios, Lattes, atividades complementares, estagios e TCC.",
+      "Consultar notas, boletim, historico, matriculas, projetos de pesquisa/extensao/ensino, equipe, cronograma, relatorios, Lattes e atividades complementares. Tambem registra execucao de atividades e gerencia gastos em projetos.",
   },
   {
     pergunta: "E se eu nao usar assistente de IA?",
