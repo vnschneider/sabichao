@@ -93,12 +93,54 @@ def definicoes(el: lhtml.HtmlElement, somente: set[str] | None = None) -> dict[s
 
 def secoes_accordion(doc: lhtml.HtmlElement) -> dict[str, lhtml.HtmlElement]:
     secoes = {}
-    for item in doc.xpath('//div[contains(concat(" ", @class, " "), " accordion-item ")]'):
+    for item in doc.xpath('.//div[contains(concat(" ", @class, " "), " accordion-item ")]'):
         titulo = texto(item.find(".//h2"))
         corpo = item.xpath('.//div[contains(@class, "accordion-body")]')
         if titulo and corpo:
             secoes[titulo] = corpo[0]
     return secoes
+
+
+def tab_pane(doc: lhtml.HtmlElement, nome_tab: str) -> lhtml.HtmlElement | None:
+    """Retorna o elemento <div class="tab-pane" data-tab="..."> da aba especificada."""
+    panes = doc.xpath(f'//div[contains(@class, "tab-pane")][@data-tab="{nome_tab}"]')
+    return panes[0] if panes else None
+
+
+def extrair_checklist(el: lhtml.HtmlElement) -> list[dict[str, str]]:
+    """Extrai itens de checklist (<p class="checklist">) com status e aba de referência."""
+    itens = []
+    for p in el.xpath('.//p[contains(@class, "checklist")]'):
+        cls = p.get("class", "")
+        status = "ok" if "success" in cls else "pendente" if "error" in cls else "info"
+        descricao = texto(p).replace("Pendente", "").replace("OK", "").strip()
+        aba_ref = None
+        for a in p.iter("a"):
+            href = a.get("href", "")
+            if m := re.search(r"mudar_url\([^,]+,\s*'(\w+)'\)", href):
+                aba_ref = m[1]
+        item: dict[str, str] = {"descricao": descricao, "status": status}
+        if aba_ref:
+            item["aba"] = aba_ref
+        itens.append(item)
+    return itens
+
+
+def tabela_info(el: lhtml.HtmlElement) -> dict[str, str]:
+    """Extrai pares chave-valor de <table class="info"> (sem thead/tbody)."""
+    pares: dict[str, str] = {}
+    for table in el.xpath('.//table[contains(@class, "info")]'):
+        for tr in table.iter("tr"):
+            tds = list(tr.iter("td"))
+            if len(tds) >= 2:
+                rotulo = texto(tds[0])
+                links = [a.get("href") for a in tds[1].iter("a") if a.get("href")]
+                valor = texto(tds[1])
+                if links:
+                    valor = f"{valor} ({links[0]})" if valor else links[0]
+                if rotulo:
+                    pares[rotulo] = valor
+    return pares
 
 
 def parse_data(valor: str | None) -> date | None:
