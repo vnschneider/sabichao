@@ -161,6 +161,46 @@ def permitir_no_claude_code(arquivo: Path, remover: bool = False) -> None:
     _gravar_json(arquivo, dados)
 
 
+class HostCodexToml(Host):
+    """Codex (OpenAI): ~/.codex/config.toml com [mcp_servers.NAME]."""
+
+    def __init__(self) -> None:
+        super().__init__("codex", "Codex (OpenAI)")
+        self.arquivo = _home() / ".codex" / "config.toml"
+
+    def instalado(self) -> bool:
+        return shutil.which("codex") is not None or self.arquivo.exists()
+
+    def configurado(self) -> bool:
+        if not self.arquivo.exists():
+            return False
+        return f"[mcp_servers.{NOME_SERVIDOR}]" in self.arquivo.read_text(encoding="utf-8")
+
+    def configurar(self) -> str:
+        _backup(self.arquivo)
+        texto = self.arquivo.read_text(encoding="utf-8") if self.arquivo.exists() else ""
+        if f"[mcp_servers.{NOME_SERVIDOR}]" in texto:
+            return "ja estava configurado"
+        comando, *args = comando_mcp()
+        cmd_toml = f"'{comando}'" if "\\" in comando else f'"{comando}"'
+        args_toml = ", ".join(f'"{a}"' for a in args)
+        bloco = f"\n[mcp_servers.{NOME_SERVIDOR}]\ncommand = {cmd_toml}\nargs = [{args_toml}]\n"
+        self.arquivo.write_text(texto.rstrip() + "\n" + bloco, encoding="utf-8")
+        return f"adicionado em {self.arquivo}"
+
+    def remover(self) -> str:
+        if not self.arquivo.exists():
+            return "nao estava configurado"
+        texto = self.arquivo.read_text(encoding="utf-8")
+        marcador = f"[mcp_servers.{NOME_SERVIDOR}]"
+        if marcador not in texto:
+            return "nao estava configurado"
+        _backup(self.arquivo)
+        texto = re.sub(rf"\[mcp_servers\.{NOME_SERVIDOR}\][^\[]*", "", texto).rstrip() + "\n"
+        self.arquivo.write_text(texto, encoding="utf-8")
+        return f"removido de {self.arquivo}"
+
+
 class HostOpenCode(Host):
     """OpenCode: ~/.config/opencode/opencode.json com mcp.servers."""
 
@@ -202,10 +242,7 @@ def todos() -> list[Host]:
                 ["mcp", "remove", NOME_SERVIDOR, "-s", "user"],
                 home / ".claude.json", rf'"{NOME_SERVIDOR}"\s*:',
                 permissoes=home / ".claude" / "settings.json"),
-        HostCli("codex", "Codex (OpenAI)", "codex",
-                ["mcp", "add", NOME_SERVIDOR],
-                ["mcp", "remove", NOME_SERVIDOR],
-                home / ".codex" / "config.toml", rf"\[mcp_servers\.{NOME_SERVIDOR}\]"),
+        HostCodexToml(),
         HostJson("gemini", "Gemini CLI",
                  home / ".gemini" / "settings.json", home / ".gemini", "gemini",
                  extras={"timeout": 600000, "trust": True}),
