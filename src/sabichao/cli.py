@@ -169,6 +169,44 @@ def cmd_mcp() -> None:
     main()
 
 
+def cmd_update() -> int:
+    """Reutiliza o instalador oficial sem refazer login ou configuracao dos apps."""
+    import subprocess
+    from sabichao.config import REPO_GITHUB
+
+    origem = f"https://raw.githubusercontent.com/{REPO_GITHUB}/main"
+    print("Atualizacao pode interromper sessoes MCP abertas; login e configuracoes serao preservados.")
+    try:
+        if sys.platform == "win32":
+            # Esperar o CLI sair libera sabichao.exe antes da reinstalacao no Windows.
+            script = (
+                f"$ErrorActionPreference='Stop'; $code=0; Wait-Process -Id {os.getpid()} -ErrorAction SilentlyContinue; "
+                "try { $env:SUAP_MCP_SO_INSTALAR='1'; "
+                f"irm '{origem}/install.ps1' -ErrorAction Stop | iex; "
+                "Write-Host 'Atualizacao concluida. Reconecte o MCP nos apps de IA.'; "
+                "} catch { $code=1; Write-Host ('Falha na atualizacao: ' + $_); }; "
+                "Read-Host 'Pressione Enter para fechar'; exit $code"
+            )
+            subprocess.Popen(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+                             creationflags=subprocess.CREATE_NEW_CONSOLE)
+            print("Atualizacao iniciada em outra janela. Confira nela o resultado e reconecte o MCP.")
+            return 0
+        env = {**os.environ, "SUAP_MCP_SO_INSTALAR": "1"}
+        script = (
+            'script=$(mktemp) || exit 1; trap \'rm -f "$script"\' EXIT; '
+            f'curl -fsSL {origem}/install.sh -o "$script" && sh "$script"; '
+            'code=$?; if [ "$code" -eq 0 ]; then '
+            "printf '%s\\n' 'Atualizacao concluida. Reconecte o MCP nos apps de IA.'; "
+            'else printf \'%s\\n\' "Falha na atualizacao (codigo $code). Use o instalador do site." >&2; fi; '
+            'exit "$code"'
+        )
+        # Substituir o processo evita que o instalador encerre o proprio CLI.
+        os.execvpe("/bin/sh", ["sh", "-c", script], env)
+    except OSError as erro:
+        print(f"Nao consegui iniciar a atualizacao: {erro}. Use o instalador do site.")
+        return 1
+
+
 def main() -> None:
     if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         try:
@@ -187,6 +225,8 @@ def main() -> None:
         sys.exit(cmd_login())
     elif args[0] == "doctor":
         sys.exit(cmd_doctor())
+    elif args[0] == "update":
+        sys.exit(cmd_update())
     elif args[0] == "desinstalar":
         sys.exit(cmd_desinstalar())
     elif args[0] in ("-h", "--help", "help"):
@@ -194,6 +234,7 @@ def main() -> None:
         print("Comandos:")
         print("  (sem comando)  Inicia o servidor MCP (stdio)")
         print("  instalar       Prepara tudo: navegador, apps de IA, login")
+        print("  update         Atualiza o pacote sem refazer login/configuracao")
         print("  login          Abre janela do SUAP para login")
         print("  doctor         Diagnostico: o que esta pronto, o que falta")
         print("  desinstalar    Remove o Sabichao dos apps de IA")

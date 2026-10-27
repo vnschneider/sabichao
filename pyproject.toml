@@ -1,6 +1,6 @@
 [project]
 name = "sabichao"
-version = "0.3.0"
+version = "0.4.0"
 description = "Servidor MCP para estudantes consultarem o SUAP (ensino, pesquisa, extensao e projetos)."
 readme = "README.md"
 license = "AGPL-3.0-or-later"
