@@ -62,10 +62,25 @@ O comando `sabichao instalar` detecta os apps instalados e configura cada um aut
 ```bash
 sabichao              # inicia o servidor MCP (stdio)
 sabichao instalar     # instala tudo: navegador, apps, login, diagnostico
+sabichao update       # atualiza o pacote sem refazer login/configuracao
 sabichao login        # abre janela do SUAP para login
 sabichao doctor       # diagnostico: o que esta pronto, o que falta
 sabichao desinstalar  # remove dos apps de IA
 ```
+
+### Atualizar
+
+O comando do site tambem atualiza uma instalacao existente. A partir da versao
+0.4.0, use `sabichao update` para atualizar somente o pacote, reutilizando os
+instaladores oficiais e preservando login, dados e configuracoes dos apps.
+Ele instala a versao de `main`, como o comando do site (ou a origem definida
+em `SUAP_MCP_ORIGEM`), nao necessariamente a ultima versao publicada no PyPI.
+
+No Windows, abre outra janela e espera o comando fechar antes de reinstalar;
+confira sucesso ou falha nessa janela. Em macOS/Linux, a atualizacao ocorre no
+mesmo terminal. O instalador pode encerrar sessoes MCP do Sabichao em andamento.
+Depois, reinicie os apps de IA ou reconecte o MCP para carregar a nova versao.
+Se sua versao ainda nao reconhecer `update`, rode o instalador do site uma vez.
 
 ## Tools MCP
 

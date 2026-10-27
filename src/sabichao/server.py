@@ -50,7 +50,7 @@ sem consultar os registros. Arquivo PDF retornado fica no computador onde roda o
 `projeto_participantes_frequencia`; nao invente IDs nem use IDs da equipe como vinculos.
 """
 
-servidor = MCPServer(name="sabichao", title="Sabichao - seu SUAP na ponta da lingua", instructions=INSTRUCOES, version="0.3.0")
+servidor = MCPServer(name="sabichao", title="Sabichao - seu SUAP na ponta da lingua", instructions=INSTRUCOES, version="0.4.0")
 
 LEITURA = ToolAnnotations(readOnlyHint=True, openWorldHint=False)
 LEITURA_SUAP = ToolAnnotations(readOnlyHint=True, openWorldHint=True)
@@ -77,7 +77,9 @@ def _verificar_atualizacao() -> dict | None:
             atual_t = tuple(int(x) for x in atual.split("."))
             remota_t = tuple(int(x) for x in remota.split("."))
             if remota_t > atual_t:
-                if sys.platform == "win32":
+                if atual_t >= (0, 4, 0):
+                    cmd = "sabichao update"
+                elif sys.platform == "win32":
                     cmd = 'powershell -c "irm https://raw.githubusercontent.com/vnschneider/sabichao/main/install.ps1 | iex"'
                 else:
                     cmd = "curl -fsSL https://raw.githubusercontent.com/vnschneider/sabichao/main/install.sh | sh"

@@ -91,6 +91,11 @@ export const GARANTIAS = [
 
 export const PERGUNTAS = [
   {
+    pergunta: "Como atualizo o Sabichao?",
+    resposta:
+      "O comando de instalacao deste site tambem atualiza. A partir da versao 0.4.0, voce pode usar sabichao update: atualiza o pacote sem refazer login ou configuracao. No Windows, confira o resultado na janela que abrir. Sessoes MCP podem ser interrompidas; depois, reinicie seu app de IA ou reconecte o MCP. Se update ainda nao existir na sua versao, rode o instalador do site uma vez.",
+  },
+  {
     pergunta: "Preciso pagar?",
     resposta:
       "Nao. O Sabichao e gratuito e de codigo aberto (licenca AGPL-3.0). Para conversar com ele, voce usa o assistente de IA que ja tem, como o Claude.",
