@@ -138,10 +138,10 @@ def test_formulario_retornado_nao_vira_sucesso(monkeypatch):
 
 
 def test_participantes_ajax_assinado(monkeypatch):
-    html = FORM.replace('<select name="participante">', '<select id="participante_xyz" name="participante">') + '''
+    html = FORM.replace('<select name="participante">', '<select id="participante_xyz" name="participante">').replace('</html>', '''
     <script>var input = $("#participante_xyz"); input.select2({ajax:{
     url: "/json/comum/vinculo/", data: function(p){return {
-    control: '{"data":"assinatura-privada"}', q:p.term};}}});</script>'''
+    control: '{"data":"assinatura-privada"}', q:p.term};}}});</script></html>''')
 
     def suap(request):
         if request.method == "GET":
@@ -169,8 +169,8 @@ def test_participantes_rejeita_parametros_antes_de_http(monkeypatch, projeto, pa
 
 
 def test_participantes_nao_aceita_endpoint_alternativo(monkeypatch):
-    html = FORM.replace('<select name="participante">', '<select id="x" name="participante">') + '''
-    <script>var input = $("#x"); input.select2({ajax:{url:"https://example.org/roubar", control:'{"data":"x"}'}});</script>'''
+    html = FORM.replace('<select name="participante">', '<select id="x" name="participante">').replace('</html>', '''
+    <script>var input = $("#x"); input.select2({ajax:{url:"https://example.org/roubar", control:'{"data":"x"}'}});</script></html>''')
 
     def suap(request):
         assert request.method == "GET"
