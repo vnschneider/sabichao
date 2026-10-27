@@ -7,6 +7,7 @@ Rotas administrativas e acoes destrutivas sao bloqueadas.
 from __future__ import annotations
 
 import re
+import json
 
 import httpx
 
@@ -172,3 +173,42 @@ class SuapClient:
             raise SessaoExpirada()
         resp.raise_for_status()
         return resp
+
+    def participantes_frequencia(self, projeto_id: str, consulta: str, pagina: int) -> dict:
+        """Consulta somente o autocomplete assinado do formulario de lista de extensao."""
+        if not re.fullmatch(r"[0-9]+", projeto_id) or not 1 <= pagina <= 100 or len(consulta) > 100:
+            raise ValueError("Projeto, pagina ou consulta invalidos.")
+        from sabichao.html_utils import documento
+        caminho = f"/projetos/gerar_lista_frequencia/{projeto_id}/"
+        html, _ = self.formulario(caminho)
+        doc = documento(html)
+        select = doc.xpath('//select[@name="participante"]/@id')
+        if not select:
+            raise ValueError("Campo participante nao encontrado no formulario.")
+        scripts = [s.text or "" for s in doc.iter("script") if f'"#{select[0]}"' in (s.text or "")]
+        if len(scripts) != 1:
+            raise ValueError("Autocomplete do participante nao reconhecido; consulte no SUAP.")
+        script = scripts[0]
+        url = re.search(r'''url\s*:\s*["']([^"']+)["']''', script)
+        control = re.search(r"control\s*:\s*'([^']+)'", script)
+        if not url or url[1] != "/json/comum/vinculo/" or not control:
+            raise ValueError("Endpoint de participantes nao reconhecido; consulte no SUAP.")
+        if not isinstance(json.loads(control[1]), dict):
+            raise ValueError("Controle do autocomplete invalido.")
+        csrf = self._csrf(html)
+        if not csrf:
+            raise ValueError("Token CSRF nao encontrado.")
+        # Consulta assinada, endpoint fixo, sem seguir redirects com dados privados.
+        resp = self._http.post("/json/comum/vinculo/", data={
+            "q": consulta, "page": pagina, "control": control[1], "csrfmiddlewaretoken": csrf,
+        }, headers={"Referer": str(self._http.base_url).rstrip("/") + caminho,
+                    "X-Requested-With": "XMLHttpRequest"}, follow_redirects=False)
+        if "/accounts/login" in str(resp.url) or "/accounts/login" in resp.headers.get("location", ""):
+            raise SessaoExpirada()
+        resp.raise_for_status()
+        dados = resp.json()
+        if not isinstance(dados, dict) or not isinstance(dados.get("items"), list) or not isinstance(dados.get("total"), int):
+            raise ValueError("Resposta de participantes nao reconhecida.")
+        return {"participantes": [{"valor": str(i["id"]), "texto": str(i["text"])}
+                                  for i in dados["items"]], "total": dados["total"], "pagina": pagina,
+                "url_suap": str(self._http.base_url).rstrip("/") + caminho}

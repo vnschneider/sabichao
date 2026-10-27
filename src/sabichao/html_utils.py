@@ -204,6 +204,7 @@ class CampoFormulario:
     rotulo: str = ""
     opcoes: list[dict[str, str]] = field(default_factory=list)
     obrigatorio: bool = False
+    limites: dict[str, str] = field(default_factory=dict)
 
     def como_dict(self) -> dict:
         d: dict = {"nome": self.nome, "tipo": self.tipo}
@@ -215,6 +216,10 @@ class CampoFormulario:
             d["opcoes"] = self.opcoes
         if self.obrigatorio:
             d["obrigatorio"] = True
+        if self.limites:
+            d["limites"] = self.limites
+        if self.tipo == "select" and not any(o["valor"] for o in self.opcoes):
+            d["nota"] = "Opções não disponíveis no HTML; seleção pode ser dinâmica. Consulte no SUAP, sem inventar valores."
         return d
 
 
@@ -269,7 +274,8 @@ def extrair_formularios(doc: lhtml.HtmlElement) -> list[Formulario]:
                 continue
             obrigatorio = inp.get("required") is not None
             rotulo = _rotulo_campo(form_el, inp)
-            campos.append(CampoFormulario(nome=nome, tipo=tipo, valor=valor, rotulo=rotulo, obrigatorio=obrigatorio))
+            limites = {k: inp.get(k) for k in ("min", "max", "step", "maxlength") if inp.get(k) is not None}
+            campos.append(CampoFormulario(nome=nome, tipo=tipo, valor=valor, rotulo=rotulo, obrigatorio=obrigatorio, limites=limites))
 
         for ta in form_el.iter("textarea"):
             nome = ta.get("name", "")
