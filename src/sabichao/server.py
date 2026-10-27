@@ -10,6 +10,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
 import sys
+from importlib.resources import files
 
 from sabichao import auth, html_utils, normas, parsers
 from sabichao.client import SessaoExpirada, SuapClient
@@ -37,9 +38,19 @@ ESCRITA (projetos):
 8. Use `projeto_formulario` com a URL de uma acao para ver os campos do formulario.
 9. Use `projeto_enviar` com os campos preenchidos para submeter o formulario.
 10. SEMPRE confirme com o estudante antes de enviar dados. Mostre o que sera enviado.
+
+FREQUENCIA (qualquer app de IA):
+11. Chame `orientacao_frequencia` antes de planejar frequencias ou gerar listas. A mesma skill
+esta no recurso `suap://orientacoes/frequencia`, sem depender de skills locais do Claude.
+12. Em extensao, a aba observada e `registro_frequencia`. Descubra cadastrar/editar/gerar pela
+lista `acoes_disponiveis`. Sugestoes de horas nao sao regra do edital nem prova de presenca.
+13. Depois de enviar, releia a aba para conferir persistencia; nao repita POST apos timeout
+sem consultar os registros. Arquivo PDF retornado fica no computador onde roda o MCP.
+14. Para o select dinamico de participante da lista de extensao, use
+`projeto_participantes_frequencia`; nao invente IDs nem use IDs da equipe como vinculos.
 """
 
-servidor = MCPServer(name="sabichao", title="Sabichao - seu SUAP na ponta da lingua", instructions=INSTRUCOES, version="0.2.0")
+servidor = MCPServer(name="sabichao", title="Sabichao - seu SUAP na ponta da lingua", instructions=INSTRUCOES, version="0.3.0")
 
 LEITURA = ToolAnnotations(readOnlyHint=True, openWorldHint=False)
 LEITURA_SUAP = ToolAnnotations(readOnlyHint=True, openWorldHint=True)
@@ -253,7 +264,7 @@ def projeto_detalhes(projeto_id: str, tipo: str = "pesquisa") -> dict:
     Abas tipicas de um projeto:
     dados_do_projeto, dados_do_edital, dados_da_selecao, equipe, cronograma,
     plano_de_aplicacao, plano_de_desembolso, calculo_da_pontuacao,
-    anexos, fotos, registros_frequencia_atividade, relatorios, pendencias, conclusao"""
+    anexos, fotos, registro_frequencia (extensao), relatorios, pendencias, conclusao"""
     prefixo = {"pesquisa": "/pesquisa", "extensao": "/projetos", "ensino": "/projetos_ensino"}.get(tipo)
     if not prefixo:
         return {"erro": f"Tipo invalido: {tipo}. Use: pesquisa, extensao ou ensino."}
@@ -282,12 +293,15 @@ def projeto_aba(projeto_id: str, aba: str, tipo: str = "pesquisa") -> dict:
     - calculo_da_pontuacao: pontuacao do curriculo para selecao
     - anexos: documentos anexados ao projeto
     - fotos: fotos registradas no projeto
-    - registros_frequencia_atividade: registros de presenca e atividades
+    - registro_frequencia: registros de presenca e atividades (extensao;
+      nome antigo registros_frequencia_atividade aceito como alias)
     - relatorios: relatorios parciais e finais
     - pendencias: itens pendentes do projeto
     - conclusao: dados de conclusao/encerramento
 
     tipo: 'pesquisa', 'extensao' ou 'ensino'."""
+    if tipo == "extensao" and aba == "registros_frequencia_atividade":
+        aba = "registro_frequencia"
     prefixo = {"pesquisa": "/pesquisa", "extensao": "/projetos", "ensino": "/projetos_ensino"}.get(tipo)
     if not prefixo:
         return {"erro": f"Tipo invalido: {tipo}. Use: pesquisa, extensao ou ensino."}
@@ -411,6 +425,9 @@ def projeto_enviar(caminho: str, dados: str) -> dict:
     dados: JSON com os campos preenchidos. Ex: '{"descricao": "texto aqui", "resultado": "concluido"}'.
     Use projeto_formulario primeiro para ver os campos disponiveis.
 
+    Respostas PDF sao salvas localmente; retorna caminho, nao anexo no chat.
+    Resposta HTML sem erros nao prova persistencia: consulte projeto_aba depois.
+
     O token CSRF e tratado automaticamente.
     CONFIRME com o estudante antes de chamar esta ferramenta."""
     import json as _json
@@ -431,6 +448,23 @@ def projeto_enviar(caminho: str, dados: str) -> dict:
             if not csrf:
                 return {"erro": "Token CSRF nao encontrado. A pagina pode nao ter formulario."}
             resp = client.postar(caminho, campos, csrf_token=csrf)
+            tipo = resp.headers.get("content-type", "").split(";")[0].strip().lower()
+            if resp.content.startswith(b"%PDF"):
+                import os
+                import tempfile
+                from sabichao.config import home
+                pasta = home() / "documentos"
+                pasta.mkdir(parents=True, exist_ok=True)
+                # Nome remoto nao e usado: evita path traversal e sobrescrita.
+                fd, arquivo = tempfile.mkstemp(prefix="suap-", suffix=".pdf", dir=pasta)
+                with os.fdopen(fd, "wb") as f:
+                    f.write(resp.content)
+                return {"status": "arquivo_gerado", "arquivo": arquivo,
+                        "tipo": "application/pdf", "tamanho_bytes": len(resp.content),
+                        "url_suap": str(resp.url)}
+            if tipo and tipo not in ("text/html", "application/xhtml+xml", "text/plain"):
+                return {"erro": "Resposta nao e HTML nem PDF valido; use o formulario no SUAP.",
+                        "url_suap": str(resp.url), "tipo": tipo}
             resultado = parsers.parse_pagina_generica(resp.text)
             doc = html_utils.documento(resp.text)
             erros = []
@@ -438,20 +472,65 @@ def projeto_enviar(caminho: str, dados: str) -> dict:
                 t = html_utils.texto(el)
                 if t:
                     erros.append(t)
-            resultado["url_suap"] = f"{BASE_URL}{caminho}"
+            resultado["url_suap"] = str(resp.url)
             if erros:
                 resultado["status"] = "erro_validacao"
                 resultado["erros"] = erros
+            elif any(f.metodo == "POST" and f.csrf_token for f in html_utils.extrair_formularios(doc)):
+                resultado["status"] = "formulario_retornado"
+                resultado["formularios"] = [f.como_dict() for f in html_utils.extrair_formularios(doc)]
+                resultado["orientacao"] = "SUAP retornou formulario, nao confirmacao. Confira os campos antes de tentar novamente."
             else:
                 resultado["status"] = "enviado"
+                resultado["persistencia_verificada"] = False
+                resultado["orientacao"] = "Releia a aba do projeto e confira os campos antes de declarar salvo."
             return resultado
     except Exception as e:
         return {"erro": _erro_amigavel(e)}
 
 
+@servidor.tool(annotations=LEITURA_SUAP)
+def projeto_participantes_frequencia(projeto_id: str, consulta: str = "", pagina: int = 1) -> dict:
+    """Consulta participantes selecionaveis na lista de frequencia de extensao.
+
+    Usa o autocomplete assinado do formulario do proprio projeto, sem gravar dados.
+    Retorna valor/texto para preencher participante em projeto_enviar; nao invente IDs.
+    Consulta tem ate 100 caracteres e pagina de 1 a 100. Nao retorna tokens internos.
+    """
+    import re
+    if not re.fullmatch(r"[0-9]+", projeto_id) or not 1 <= pagina <= 100 or len(consulta) > 100:
+        return {"erro": "Projeto, pagina ou consulta invalidos."}
+    try:
+        with _cliente() as client:
+            return client.participantes_frequencia(projeto_id, consulta, pagina)
+    except Exception as e:
+        # Excecoes de JSON/HTTP podem carregar controle ou payload: nao expor detalhes.
+        if isinstance(e, SessaoExpirada):
+            return {"erro": _erro_amigavel(e)}
+        return {"erro": "Nao foi possivel consultar participantes; confira o formulario no SUAP.",
+                "url_suap": f"{BASE_URL}/projetos/gerar_lista_frequencia/{projeto_id}/"}
+
+
 # ============================================================================
 # Elaboracao de Relatorios
 # ============================================================================
+
+
+@servidor.resource("suap://orientacoes/frequencia")
+def recurso_frequencia() -> str:
+    """Skill de frequencia distribuida com o pacote, independente do app de IA."""
+    return files("sabichao").joinpath("skills/sabichao-frequencia/SKILL.md").read_text(encoding="utf-8")
+
+
+@servidor.tool(annotations=LEITURA)
+def orientacao_frequencia() -> dict:
+    """Carregue antes de planejar/registrar frequencias ou gerar listas de projeto.
+
+    Skill compartilhada por todos os agentes MCP: sugestoes ajustaveis de 12h/semana,
+    semanas compartilhadas entre meses sem dupla contagem, feriados, confirmacao
+    antes do envio e verificacao dos registros. Nao precisa de login no SUAP.
+    """
+    return {"orientacao": recurso_frequencia(), "recurso": "suap://orientacoes/frequencia"}
 
 @servidor.resource("suap://normas/relatorio/{modalidade}")
 def recurso_normas_relatorio(modalidade: str) -> str:
